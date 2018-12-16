@@ -2,7 +2,7 @@ package uet.oop.bomberman.entities.character.enemy;
 
 import uet.oop.bomberman.Board;
 import uet.oop.bomberman.Game;
-import uet.oop.bomberman.entities.character.enemy.ai.AILow;
+import uet.oop.bomberman.entities.character.enemy.ai.AIBalloon;
 import uet.oop.bomberman.graphics.Sprite;
 
 public class Balloon extends Enemy {
@@ -13,7 +13,7 @@ public class Balloon extends Enemy {
 		
 		_sprite = Sprite.balloom_left1;
 		
-		_ai = new AILow();
+		_ai = new AIBalloon();
 		_direction = _ai.calculateDirection();
 	}
 

@@ -3,6 +3,7 @@ package uet.oop.bomberman;
 import uet.oop.bomberman.graphics.Screen;
 import uet.oop.bomberman.gui.Frame;
 import uet.oop.bomberman.input.Keyboard;
+import uet.oop.bomberman.sound.Audio;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -23,12 +24,13 @@ public class Game extends Canvas {
 	
 	public static final String TITLE = "BombermanGame";
 	
-	private static final int BOMBRATE = 1;
-	private static final int BOMBRADIUS = 1;
-	private static final double BOMBERSPEED = 1.0;
+	private static final int BOMBRATE = 5; // số lượng boom có thể đặt
+	private static final int BOMBRADIUS = 1; //  bán kính vụ nổ
+	private static final double BOMBERSPEED = 1; // tốc độ di chuyển của game
 	
 	public static final int TIME = 200;
 	public static final int POINTS = 0;
+	public static final int LIVES = 3;
 	
 	protected static int SCREENDELAY = 3;
 
@@ -49,7 +51,7 @@ public class Game extends Canvas {
 	
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-	
+
 	public Game(Frame frame) {
 		_frame = frame;
 		_frame.setTitle(TITLE);
@@ -109,10 +111,14 @@ public class Game extends Canvas {
 	}
 	
 	public void start() {
+//		Audio.playMusicOpen();
+		Audio.playLoopGameSong();
 		_running = true;
-		
+
+
 		long  lastTime = System.nanoTime();
 		long timer = System.currentTimeMillis();
+
 		final double ns = 1000000000.0 / 60.0; //nanosecond, 60 frames per second
 		double delta = 0;
 		int frames = 0;
@@ -144,6 +150,11 @@ public class Game extends Canvas {
 			if(System.currentTimeMillis() - timer > 1000) {
 				_frame.setTime(_board.subtractTime());
 				_frame.setPoints(_board.getPoints());
+// --------------------- thêm ---------------------------------------
+				_frame.setLives(_board.getLives());
+//------------------------------------------------------
+// -
+
 				timer += 1000;
 				_frame.setTitle(TITLE + " | " + updates + " rate, " + frames + " fps");
 				updates = 0;
@@ -194,5 +205,8 @@ public class Game extends Canvas {
 	public void pause() {
 		_paused = true;
 	}
-	
+
+	// ----------------------- thêm ------------------------------
+
+
 }

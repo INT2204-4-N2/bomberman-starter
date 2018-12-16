@@ -1,10 +1,15 @@
 package uet.oop.bomberman.entities.bomb;
 
 import uet.oop.bomberman.Board;
+import uet.oop.bomberman.Game;
 import uet.oop.bomberman.entities.AnimatedEntitiy;
 import uet.oop.bomberman.entities.Entity;
+import uet.oop.bomberman.entities.character.Bomber;
+import uet.oop.bomberman.entities.character.Character;
 import uet.oop.bomberman.graphics.Screen;
 import uet.oop.bomberman.graphics.Sprite;
+import uet.oop.bomberman.level.Coordinates;
+import uet.oop.bomberman.sound.Audio;
 
 public class Bomb extends AnimatedEntitiy {
 
@@ -12,9 +17,10 @@ public class Bomb extends AnimatedEntitiy {
 	public int _timeAfter = 20;
 	
 	protected Board _board;
+	protected boolean _allowedToPassThru = true;
 	protected Flame[] _flames;
 	protected boolean _exploded = false;
-	protected boolean _allowedToPassThru = true;
+
 	
 	public Bomb(int x, int y, Board board) {
 		_x = x;
@@ -29,7 +35,7 @@ public class Bomb extends AnimatedEntitiy {
 			_timeToExplode--;
 		else {
 			if(!_exploded) 
-				explode();
+				explosion();
 			else
 				updateFlames();
 			
@@ -71,14 +77,31 @@ public class Bomb extends AnimatedEntitiy {
     /**
      * Xử lý Bomb nổ
      */
-	protected void explode() {
-		_exploded = true;
-		
-		// TODO: xử lý khi Character đứng tại vị trí Bomb
-		
-		// TODO: tạo các Flame
+	public void explode() {
+		_timeToExplode = 0;
 	}
-	
+
+	protected void explosion() {
+		_allowedToPassThru = true;
+		_exploded = true;
+
+		Character a = _board.getCharacterAt(_x, _y);
+		if(a != null)  {
+			a.kill();
+		}
+
+		_flames = new Flame[4];
+
+		for (int i = 0; i < _flames.length; i++) {
+			_flames[i] = new Flame((int)_x, (int)_y, i, Game.getBombRadius(), _board);
+		}
+		Audio.playBombExplode();
+	}
+
+	public boolean isExploded() {
+		return _exploded;
+	}
+	//0--------------------------------------
 	public FlameSegment flameAt(int x, int y) {
 		if(!_exploded) return null;
 		
@@ -95,6 +118,22 @@ public class Bomb extends AnimatedEntitiy {
 	public boolean collide(Entity e) {
         // TODO: xử lý khi Bomber đi ra sau khi vừa đặt bom (_allowedToPassThru)
         // TODO: xử lý va chạm với Flame của Bomb khác
-        return false;
+		if(e instanceof Bomber) {
+			double diffX = e.getX() - Coordinates.tileToPixel(getX());
+			double diffY = e.getY() - Coordinates.tileToPixel(getY());
+
+			if(!(diffX >= -10 && diffX < 16 && diffY >= 1 && diffY <= 28)) { // differences to see if the player has moved out of the bomb, tested values
+				_allowedToPassThru = false;
+			}
+
+			return _allowedToPassThru;
+		}
+
+		if(e instanceof Flame) {
+			explode();
+			return true;
+		}
+
+		return false;
 	}
 }
